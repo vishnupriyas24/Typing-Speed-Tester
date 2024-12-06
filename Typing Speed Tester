@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Tester</title>
+    <style>
+        /* Body and general page setup */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b); /* Attractive gradient background */
+            height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background for content */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        /* Text box styling */
+        .text-box {
+            border: 2px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 20px;
+            background-color: #e8f5e9;
+            color: #333;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        /* Textarea styling */
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin: 20px 0;
+            font-size: 18px;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Button styling */
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #6200ea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #3700b3;
+        }
+
+        /* Result section styling */
+        .result {
+            margin-top: 30px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .result strong {
+            color: #4caf50;
+        }
+
+        /* Dark Mode specific styles */
+        .dark-mode {
+            background-color: #121212;
+            color: #f1f1f1;
+        }
+
+        .dark-mode button {
+            background-color: #bb86fc;
+        }
+
+        .dark-mode button:hover {
+            background-color: #3700b3;
+        }
+
+        .dark-mode .text-box {
+            background-color: #333;
+            color: #f1f1f1;
+            border-color: #bb86fc;
+        }
+
+        .dark-mode textarea {
+            background-color: #333;
+            color: #f1f1f1;
+            border-color: #bb86fc;
+        }
+
+        /* Toggle button styling */
+        .mode-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: #6200ea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .mode-toggle:hover {
+            background-color: #3700b3;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Dark/Light Mode Toggle -->
+    <button class="mode-toggle" onclick="toggleMode()">🌙</button>
+
+    <!-- Main content container -->
+    <div class="container">
+        <h1>Typing Speed Tester</h1>
+        
+        <!-- Display Text for Typing Test -->
+        <div class="text-box" id="display-text">
+            The quick brown fox jumps over the lazy dog.
+        </div>
+        
+        <!-- Text Area for User Input -->
+        <textarea id="input-text" placeholder="Start typing here..."></textarea>
+
+        <!-- Buttons to Start and End the Test -->
+        <br>
+        <button onclick="startTest()">Start Test</button>
+        <button onclick="endTest()">End Test</button>
+
+        <!-- Results Display Section -->
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        let startTime, endTime;
+        const displayText = document.getElementById("display-text").innerText;
+
+        // Function to start the typing test
+        function startTest() {
+            const inputText = document.getElementById("input-text");
+            inputText.value = ""; // Clear input
+            inputText.focus(); // Focus on the textarea
+            startTime = new Date().getTime(); // Start time
+            document.getElementById("result").innerText = ""; // Clear previous results
+        }
+
+        // Function to end the typing test and calculate the results
+        function endTest() {
+            endTime = new Date().getTime(); // End time
+            const inputText = document.getElementById("input-text").value.trim();
+            const timeTaken = (endTime - startTime) / 1000; // Time in seconds
+            const wordCount = countWords(inputText);
+            const accuracy = calculateAccuracy(displayText, inputText);
+
+            const speed = Math.round((wordCount / timeTaken) * 60); // Words per minute
+            document.getElementById("result").innerHTML = `
+                <p>Typing Speed: <strong>${speed} WPM</strong></p>
+                <p>Accuracy: <strong>${accuracy}%</strong></p>
+                <p>Time Taken: <strong>${timeTaken.toFixed(2)} seconds</strong></p>
+            `;
+        }
+
+        // Function to count words in the input text
+        function countWords(str) {
+            return str.split(/\s+/).filter(word => word).length;
+        }
+
+        // Function to calculate the accuracy of the typed text
+        function calculateAccuracy(original, typed) {
+            const originalWords = original.split(" ");
+            const typedWords = typed.split(" ");
+            let correctWords = 0;
+
+            originalWords.forEach((word, index) => {
+                if (word === typedWords[index]) {
+                    correctWords++;
+                }
+            });
+
+            return ((correctWords / originalWords.length) * 100).toFixed(2);
+        }
+
+        // Function to toggle between dark and light mode
+        function toggleMode() {
+            const body = document.body;
+            body.classList.toggle('dark-mode');
+            const modeToggleButton = document.querySelector('.mode-toggle');
+            if (body.classList.contains('dark-mode')) {
+                modeToggleButton.textContent = '🌞';
+            } else {
+                modeToggleButton.textContent = '🌙';
+            }
+        }
+    </script>
+</body>
+</html>
